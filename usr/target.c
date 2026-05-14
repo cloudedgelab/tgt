@@ -461,7 +461,7 @@ __device_lookup(int tid, uint64_t lun, struct target **t)
 }
 
 enum {
-	Opt_path, Opt_bstype, Opt_bsopts, Opt_bsoflags, Opt_blocksize, Opt_err,
+	Opt_path, Opt_bstype, Opt_bsopts, Opt_bsoflags, Opt_blocksize, Opt_lu_params, Opt_err,
 };
 
 static match_table_t device_tokens = {
@@ -470,6 +470,7 @@ static match_table_t device_tokens = {
 	{Opt_bsopts, "bsopts=%s"},
 	{Opt_bsoflags, "bsoflags=%s"},
 	{Opt_blocksize, "blocksize=%s"},
+	{Opt_lu_params, "params=%s"},
 	{Opt_err, NULL},
 };
 
@@ -479,7 +480,7 @@ tgtadm_err tgt_device_create(int tid, int dev_type, uint64_t lun, char *params,
 		      int backing)
 {
 	char *p, *path = NULL, *bstype = NULL, *bsopts = NULL;
-	char *bsoflags = NULL, *blocksize = NULL;
+	char *bsoflags = NULL, *blocksize = NULL, *lu_params = NULL;
 	int lu_bsoflags = 0;
 	tgtadm_err adm_err = TGTADM_SUCCESS;
 	struct target *target;
@@ -513,6 +514,9 @@ tgtadm_err tgt_device_create(int tid, int dev_type, uint64_t lun, char *params,
 			break;
 		case Opt_blocksize:
 			blocksize = match_strdup(&args[0]);
+			break;
+		case Opt_lu_params:
+			lu_params = match_strdup(&args[0]);
 			break;
 		default:
 			break;
@@ -643,6 +647,12 @@ tgtadm_err tgt_device_create(int tid, int dev_type, uint64_t lun, char *params,
 			goto fail_lu_init;
 	}
 
+	if (lu_params) {
+		dprintf("lu_params=%s\n", lu_params);
+		if (lu->dev_type_template.lu_config)
+			lu->dev_type_template.lu_config(lu, lu_params);
+	}
+
 	if (backing && !path) {
 		lu->attrs.removable = 1;
 		lu->attrs.online    = 0;
@@ -704,6 +714,8 @@ out:
 		free(path);
 	if (bsoflags)
 		free(bsoflags);
+	if (lu_params)
+		free(lu_params);
 	return adm_err;
 
 fail_bs_init:
