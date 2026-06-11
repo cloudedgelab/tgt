@@ -9,7 +9,7 @@ RUN apt-get update -y && \
 COPY . /src
 WORKDIR /src
 RUN make programs CEPH_RBD=1
-
+RUN ldd /src/usr/bs_rbd.so
 
 FROM debian:bullseye
 
