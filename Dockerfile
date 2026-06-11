@@ -1,8 +1,9 @@
-FROM debian:bullseye AS builder
+FROM debian:bookworm AS builder
 
-RUN apt-get update -y && \
+RUN echo "deb http://ftp.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
+    rm -f /etc/apt/sources.list.d/debian.sources  && \
+    apt-get update -y && \
     apt-get install -y wget gnupg ca-certificates && \
-    echo "deb [trusted=yes] https://download.ceph.com/debian-16.2.15/ bullseye main" > /etc/apt/sources.list.d/ceph.list && \
     apt-get update -y && \
     apt-get install -y build-essential librados-dev librbd-dev
 
@@ -11,11 +12,12 @@ WORKDIR /src
 RUN make programs CEPH_RBD=1
 RUN ldd /src/usr/bs_rbd.so
 
-FROM debian:bullseye
+FROM debian:bookworm
 
-RUN apt-get update -y && \
+RUN echo "deb http://ftp.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
+    rm -f /etc/apt/sources.list.d/debian.sources  && \
+    apt-get update -y && \
     apt-get install -y wget gnupg ca-certificates && \
-    echo "deb [trusted=yes] https://download.ceph.com/debian-16.2.15/ bullseye main" > /etc/apt/sources.list.d/ceph.list && \
     apt-get update -y && \
     apt-get install -y librbd1 librados2 && \
     rm -rf /var/lib/apt/lists/*
