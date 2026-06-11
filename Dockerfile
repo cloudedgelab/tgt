@@ -22,3 +22,4 @@ RUN apt-get update -y && \
 
 COPY --from=builder /src/usr/tgtd /src/usr/tgtadm /src/usr/tgtimg /usr/sbin/
 COPY --from=builder /src/usr/bs_rbd.so /usr/lib/tgt/backing-store/
+RUN ldd /usr/lib/tgt/backing-store/bs_rbd.so && ldd /usr/sbin/tgtd
