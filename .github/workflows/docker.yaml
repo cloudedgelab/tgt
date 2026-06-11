@@ -23,7 +23,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ccr.ccs.tencentyun.com/tdev/tgt
+            hkccr.ccs.tencentyun.com/tdev-hk/tgt
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
