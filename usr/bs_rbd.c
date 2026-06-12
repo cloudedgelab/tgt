@@ -687,5 +687,13 @@ static struct backingstore_template rbd_bst = {
 
 void register_bs_module(void)
 {
+	int major, minor, extra;
+
+	rados_version(&major, &minor, &extra);
+	eprintf("bs_rbd: librados version %d.%d.%d\n", major, minor, extra);
+
+	rbd_version(&major, &minor, &extra);
+	eprintf("bs_rbd: librbd version %d.%d.%d\n", major, minor, extra);
+
 	register_backingstore_template(&rbd_bst);
 }
